@@ -1,5 +1,7 @@
 #include <iostream>
 
+std::string BUILTINS[] = {"echo", "exit", "type"};
+
 int main()
 {
   // Flush after every std::cout / std:cerr
@@ -21,6 +23,28 @@ int main()
     if (input.starts_with("echo"))
     {
       std::cout << input.substr(5) << std::endl;
+      continue;
+    }
+
+    if (input.starts_with("type"))
+    {
+      std::string command = input.substr(5);
+      bool found = false;
+
+      for (std::string builtin : BUILTINS)
+      {
+        if (command == builtin)
+        {
+          std::cout << command << " is a shell builtin" << std::endl;
+          found = true;
+        }
+      }
+
+      if (found)
+      {
+        continue;
+      }
+      std::cout << command << ": not found" << std::endl;
       continue;
     }
 
