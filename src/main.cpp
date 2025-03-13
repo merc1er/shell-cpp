@@ -18,6 +18,12 @@ int main()
       break;
     }
 
+    if (input.starts_with("echo"))
+    {
+      std::cout << input.substr(5) << std::endl;
+      continue;
+    }
+
     std::cout << input << ": command not found" << std::endl;
   }
 }
