@@ -17,6 +17,44 @@ std::vector<std::string> split(std::string_view path, char delim = ':')
   return paths;
 }
 
+void execute_type_command(std::string &input)
+{
+  std::string command = input.substr(5);
+  bool found = false;
+
+  // Check if the command is a shell builtin.
+  for (std::string builtin : BUILTINS)
+  {
+    if (command == builtin)
+    {
+      std::cout << command << " is a shell builtin" << std::endl;
+      found = true;
+    }
+  }
+
+  // Check if the command is in the PATH.
+  if (!found)
+  {
+    for (std::string path : split(PATH))
+    {
+      const std::string full_path = path + "/" + command;
+      if (std::filesystem::exists(full_path))
+      {
+        std::cout << command << " is " << full_path << std::endl;
+        found = true;
+        break;
+      }
+    }
+  }
+
+  if (found)
+  {
+    return;
+  }
+  std::cout << command << ": not found" << std::endl;
+  return;
+}
+
 void run_shell()
 {
   std::cout << "$ ";
@@ -37,40 +75,7 @@ void run_shell()
 
   if (input.starts_with("type"))
   {
-    std::string command = input.substr(5);
-    bool found = false;
-
-    // Check if the command is a shell builtin.
-    for (std::string builtin : BUILTINS)
-    {
-      if (command == builtin)
-      {
-        std::cout << command << " is a shell builtin" << std::endl;
-        found = true;
-      }
-    }
-
-    // Check if the command is in the PATH.
-    if (!found)
-    {
-      for (std::string path : split(PATH))
-      {
-        const std::string full_path = path + "/" + command;
-        if (std::filesystem::exists(full_path))
-        {
-          std::cout << command << " is " << full_path << std::endl;
-          found = true;
-          break;
-        }
-      }
-    }
-
-    if (found)
-    {
-      return;
-    }
-    std::cout << command << ": not found" << std::endl;
-    return;
+    return execute_type_command(input);
   }
 
   std::cout << input << ": command not found" << std::endl;
