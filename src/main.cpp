@@ -89,9 +89,24 @@ void run_shell()
 
   std::string input;
   std::getline(std::cin, input);
+
   std::vector<std::string> parts = split(input, ' ');
+  if (parts.size() == 0)
+  {
+    return;
+  }
+
   std::string command = parts[0];
+  if (command == "")
+  {
+    return;
+  }
+
   std::string args = "";
+  if (parts.size() > 1)
+  {
+    args = input.substr(command.size() + 1);
+  }
 
   // exit builtin.
   if (command == "exit")
@@ -126,15 +141,6 @@ void run_shell()
   }
 
   // Execute the command, if found in path.
-  if (parts.size() > 1)
-  {
-    args = input.substr(command.size() + 1);
-  }
-
-  if (command == "")
-  {
-    return;
-  }
   std::string command_path = get_command_path(command);
   if (command_path != "")
   {
