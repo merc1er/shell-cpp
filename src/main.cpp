@@ -57,43 +57,68 @@ void execute_type_command(std::string &input)
   std::cout << command << ": not found" << std::endl;
 }
 
+void execute_cd_command(std::string &input)
+{
+  std::string path = input.substr(3);
+  if (path == "")
+  {
+    std::cerr << "cd: missing argument" << std::endl;
+    return;
+  }
+
+  if (std::filesystem::exists(path))
+  {
+    std::filesystem::current_path(path);
+    return;
+  }
+
+  std::cerr << "cd: " << path << ": No such file or directory" << std::endl;
+  return;
+}
+
 void run_shell()
 {
   std::cout << "$ ";
 
   std::string input;
   std::getline(std::cin, input);
+  std::vector<std::string> parts = split(input, ' ');
+  std::string command = parts[0];
+  std::string args = "";
 
-  // Exit builtin.
-  if (input.starts_with("exit"))
+  // exit builtin.
+  if (command == "exit")
   {
     std::exit(0);
   }
 
-  // Echo builtin.
-  if (input.starts_with("echo"))
+  // echo builtin.
+  if (command == "echo")
   {
     std::cout << input.substr(5) << std::endl;
     return;
   }
 
-  // Type builtin.
-  if (input.starts_with("type"))
+  // type builtin.
+  if (command == "type")
   {
     return execute_type_command(input);
   }
 
-  // PWD builtin.
-  if (input.starts_with("pwd"))
+  // pwd builtin.
+  if (command == "pwd")
   {
     std::cout << std::filesystem::current_path().string() << std::endl;
     return;
   }
 
+  // cd builtin.
+  if (command == "cd")
+  {
+    return execute_cd_command(input);
+  }
+
   // Execute the command, if found in path.
-  std::vector<std::string> parts = split(input, ' ');
-  std::string command = parts[0];
-  std::string args = "";
   if (parts.size() > 1)
   {
     args = input.substr(command.size() + 1);
