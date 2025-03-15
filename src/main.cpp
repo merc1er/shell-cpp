@@ -7,6 +7,7 @@
 
 std::string BUILTINS[] = {"echo", "exit", "type", "pwd"};
 const char *PATH = std::getenv("PATH");
+const char *HOME = std::getenv("HOME");
 
 std::vector<std::string> split(std::string_view path, char delim)
 {
@@ -63,6 +64,12 @@ void execute_cd_command(std::string &input)
   if (path == "")
   {
     std::cerr << "cd: missing argument" << std::endl;
+    return;
+  }
+
+  if (path == "~")
+  {
+    std::filesystem::current_path(HOME);
     return;
   }
 
