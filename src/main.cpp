@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <filesystem>
 
-std::string BUILTINS[] = {"echo", "exit", "type"};
+std::string BUILTINS[] = {"echo", "exit", "type", "pwd"};
 const char *PATH = std::getenv("PATH");
 
 std::vector<std::string> split(std::string_view path, char delim)
@@ -81,6 +81,13 @@ void run_shell()
   if (input.starts_with("type"))
   {
     return execute_type_command(input);
+  }
+
+  // PWD builtin.
+  if (input.starts_with("pwd"))
+  {
+    std::cout << std::filesystem::current_path().string() << std::endl;
+    return;
   }
 
   // Execute the command, if found in path.
