@@ -19,6 +19,39 @@ std::vector<std::string> split(std::string_view path, char delim)
   return paths;
 }
 
+std::vector<std::string> split_shell_command(std::string_view input)
+{
+  std::vector<std::string> tokens;
+  std::string token;
+  bool in_single_quotes = false;
+
+  for (char c : input)
+  {
+    if (c == '\'')
+    {
+      in_single_quotes = !in_single_quotes;
+      continue;
+    }
+
+    if (c == ' ' && !in_single_quotes)
+    {
+      if (!token.empty())
+      { // Only push non-empty tokens
+        tokens.push_back(token);
+        token.clear();
+      }
+      continue;
+    }
+
+    token += c;
+  }
+
+  if (!token.empty()) // Add the last token if it's not empty
+    tokens.push_back(token);
+
+  return tokens;
+}
+
 std::string get_command_path(std::string &command)
 {
   for (std::string path : split(PATH, ':'))
@@ -90,22 +123,29 @@ void run_shell()
   std::string input;
   std::getline(std::cin, input);
 
-  std::vector<std::string> parts = split(input, ' ');
-  if (parts.size() == 0)
+  std::vector<std::string> tokens = split_shell_command(input);
+
+  // Go to next command if no input.
+  if (tokens.size() == 0)
   {
     return;
   }
 
-  std::string command = parts[0];
+  std::string command = tokens[0];
   if (command == "")
   {
     return;
   }
 
   std::string args = "";
-  if (parts.size() > 1)
+  if (tokens.size() > 1)
   {
-    args = input.substr(command.size() + 1);
+    for (std::string token : tokens | std::views::drop(1))
+    {
+      std::cout << "Token: " << token << std::endl;
+      args += token + " ";
+    }
+    args.pop_back(); // Remove the last space.
   }
 
   // exit builtin.
@@ -117,7 +157,7 @@ void run_shell()
   // echo builtin.
   if (command == "echo")
   {
-    std::cout << input.substr(5) << std::endl;
+    std::cout << args << std::endl;
     return;
   }
 
