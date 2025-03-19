@@ -142,7 +142,6 @@ void run_shell()
   {
     for (std::string token : tokens | std::views::drop(1))
     {
-      std::cout << "Token: " << token << std::endl;
       args += token + " ";
     }
     args.pop_back(); // Remove the last space.
@@ -184,7 +183,8 @@ void run_shell()
   std::string command_path = get_command_path(command);
   if (command_path != "")
   {
-    std::system((command + " " + args).c_str());
+    std::string raw_arguments = input.substr(command.size());
+    std::system((command + raw_arguments).c_str());
     return;
   }
 
