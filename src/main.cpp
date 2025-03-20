@@ -24,16 +24,23 @@ std::vector<std::string> split_shell_command(std::string_view input)
   std::vector<std::string> tokens;
   std::string token;
   bool in_single_quotes = false;
+  bool in_double_quotes = false;
 
   for (char c : input)
   {
-    if (c == '\'')
+    if (c == '\'' && !in_double_quotes)
     {
       in_single_quotes = !in_single_quotes;
       continue;
     }
 
-    if (c == ' ' && !in_single_quotes)
+    if (c == '"' && !in_single_quotes)
+    {
+      in_double_quotes = !in_double_quotes;
+      continue;
+    }
+
+    if (c == ' ' && !in_single_quotes && !in_double_quotes)
     {
       if (!token.empty())
       { // Only push non-empty tokens
