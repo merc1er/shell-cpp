@@ -210,7 +210,7 @@ void run_shell()
   }
 
   // Command not found.
-  std::cout << input << ": command not found" << std::endl;
+  std::cout << command << ": command not found" << std::endl;
 }
 
 int main()
