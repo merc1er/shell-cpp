@@ -25,9 +25,23 @@ std::vector<std::string> split_shell_command(std::string_view input)
   std::string token;
   bool in_single_quotes = false;
   bool in_double_quotes = false;
+  bool is_escaped = false;
 
   for (char c : input)
   {
+    if (c == '\\' && !is_escaped && !in_single_quotes && !in_double_quotes)
+    {
+      is_escaped = true;
+      continue;
+    }
+
+    if (is_escaped)
+    {
+      token += c;
+      is_escaped = false;
+      continue;
+    }
+
     if (c == '\'' && !in_double_quotes)
     {
       in_single_quotes = !in_single_quotes;
