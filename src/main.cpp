@@ -29,7 +29,7 @@ std::vector<std::string> split_shell_command(std::string_view input)
 
   for (char c : input)
   {
-    if (c == '\\' && !is_escaped && !in_single_quotes && !in_double_quotes)
+    if (c == '\\' && !is_escaped && !in_single_quotes)
     {
       is_escaped = true;
       continue;
