@@ -25,20 +25,38 @@ std::vector<std::string> split_shell_command(std::string_view input)
   std::string token;
   bool in_single_quotes = false;
   bool in_double_quotes = false;
-  bool is_escaped = false;
 
-  for (char c : input)
+  for (size_t i = 0; i < input.size(); ++i)
   {
-    if (c == '\\' && !is_escaped && !in_single_quotes)
-    {
-      is_escaped = true;
-      continue;
-    }
+    char c = input[i];
 
-    if (is_escaped)
+    if (c == '\\')
     {
-      token += c;
-      is_escaped = false;
+      if (i + 1 < input.size())
+      {
+        char next = input[i + 1];
+
+        // Inside double quotes, only escape \, ", $, `
+        if (in_double_quotes && (next == '\\' || next == '"' || next == '$' || next == '`'))
+        {
+          token += next;
+          ++i;
+        }
+        // Outside quotes, backslash escapes anything.
+        else if (!in_single_quotes && !in_double_quotes)
+        {
+          token += next;
+          ++i;
+        }
+        else
+        {
+          token += '\\'; // Backslash is literal.
+        }
+      }
+      else
+      {
+        token += '\\'; // Lone backslash at the end.
+      }
       continue;
     }
 
@@ -57,7 +75,7 @@ std::vector<std::string> split_shell_command(std::string_view input)
     if (c == ' ' && !in_single_quotes && !in_double_quotes)
     {
       if (!token.empty())
-      { // Only push non-empty tokens
+      {
         tokens.push_back(token);
         token.clear();
       }
@@ -67,7 +85,7 @@ std::vector<std::string> split_shell_command(std::string_view input)
     token += c;
   }
 
-  if (!token.empty()) // Add the last token if it's not empty
+  if (!token.empty())
     tokens.push_back(token);
 
   return tokens;
@@ -204,8 +222,7 @@ void run_shell()
   std::string command_path = get_command_path(command);
   if (command_path != "")
   {
-    std::string raw_arguments = input.substr(command.size());
-    std::system((command + raw_arguments).c_str());
+    std::system(input.c_str());
     return;
   }
 
